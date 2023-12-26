@@ -1,4 +1,4 @@
-enable_mp = True
+enable_mp = False
 train = True
 inference = True
 plot = False
@@ -7,9 +7,9 @@ device = "cuda:0"
 # train params
 dataset = dict(
     DSample=8,
-    samples=7000,
+    samples=300000,
     estimate_window=16,
-    predict_window=5,
+    predict_window=128,
     control=10,
 )
 
