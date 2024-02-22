@@ -1,5 +1,9 @@
 # complexNDM
-This repository includes the code for the paper
+This repository includes the code for the paper _Parallelizable Complex Neural Dynamics Models for Temperature Estimation_.
+
+Since Pytorch does not support parallel scanning, this repo is built by TensorFlow, and the parallel scanning algorithm is implemented by the [```tfp.math.scan_associative```](https://www.tensorflow.org/probability/api_docs/python/tfp/math/scan_associative).
+
+```mode``` is used to select the algorithm execution way, default is parallel ```scan```.
 # Quick start
 ## Dataset
 Download the dataset from this [website](https://www.kaggle.com/wkirgsn/electric-motor-temperature) and put it into the [Data](https://github.com/XinyuanLiao/complexNDM/tree/main/Data) folder.
