@@ -1,6 +1,5 @@
 import numpy as np
 import tensorflow as tf
-import math
 import tensorflow_probability as tfp
 
 parallel_scan = tfp.math.scan_associative
@@ -37,6 +36,7 @@ class ComplexDense(tf.keras.layers.Layer):
                                          initializer="zeros",
                                          trainable=self.bias)
 
+    @tf.function(experimental_compile=True)
     def call(self, inputs):
         real_input, imag_input = tf.math.real(inputs), tf.math.imag(inputs)
 
@@ -68,6 +68,7 @@ class complexMLP(tf.keras.Model):
         # complex projection
         self.output_layer = ComplexDense(output_size)
 
+    @tf.function
     def call(self, inputs):
         for i in range(self.layer_num):
             inputs = self.hidden_layers[i](inputs)
@@ -81,7 +82,7 @@ class complexNDM(tf.keras.Model):
         super().__init__()
         assert hidden_size % 2 == 0, "Hidden_size should be even."
         self.hidden_size = hidden_size
-        self.mode = mode
+        self.mode = mode  # Serial calculation or parallel scan
 
         u1 = np.random.random(size=int(hidden_size / 2))
         u2 = np.random.random(size=int(hidden_size / 2))
@@ -104,12 +105,14 @@ class complexNDM(tf.keras.Model):
         effective_w = tf.concat((w, tf.math.conj(w)), axis=0)
         return effective_w
 
+    @tf.function(experimental_compile=True)
     def binary_operator_diag(self, element_i, element_j):
         # Binary operator for parallel scan of linear recurrence.
         a_i, u_i = element_i
         a_j, u_j = element_j
         return a_i * a_j, a_i * u_j + u_i
 
+    @tf.function
     def call(self, inputs):
         """
         Args:
