@@ -35,10 +35,15 @@ def trainer(arguments):
     tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
     seed_tensorflow(arguments.seed)
-    windows_size = arguments.prediction_length + arguments.estimation_length
 
     # data load
-    train, valid, test = loadData(windows_size, 300000, 8)
+    train, valid, test = loadData((arguments.prediction_length,
+                                  arguments.estimation_length),
+                                  arguments.num_samples,
+                                  arguments.down_rate)
+    print("train shape: ", train.shape)
+    print("valid shape: ", valid.shape)
+    print("test shape: ", test.shape)
 
     x_train, y_train = (train[:, 0:arguments.prediction_length, 10:].reshape(train.shape[0], -1),
                         train[:, arguments.prediction_length:, 0:10]), train[:, arguments.prediction_length:, 10:]
@@ -76,13 +81,14 @@ def trainer(arguments):
             loss_value, grads, loss_inf, loss_smth = grad(model, x, y)
             optimizer.apply_gradients(zip(grads, model.trainable_variables))
             epoch_loss_avg.update_state(loss_inf)
-            progbar.update(i + 1, [('loss_inf', loss_inf), ('loss_smth', loss_smth)])
+            progbar.update(i + 1, [('Loss_inf', loss_inf),
+                                   ('Loss_smth', loss_smth)])
         train_loss_results.append(epoch_loss_avg.result())
 
         # valid and early stop
         validations, _ = model(x_valid, training=False)
         valid_loss = tf.math.sqrt(tf.math.reduce_mean(tf.math.square(100 * validations - 100 * y_valid)))
-        print("Valid Loss RMSE: {:.4f}".format(valid_loss))
+        print("Valid Loss RMSE: {:.4f}".format(valid_loss)+'\n')
 
         earlystopping(valid_loss)
         if earlystopping.stop_training:
@@ -103,6 +109,8 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int, default=2024, help='random seed')
     parser.add_argument('--prediction_length', type=int, default=16)
     parser.add_argument('--estimation_length', type=int, default=128)
+    parser.add_argument('--num_samples', type=int, default=200000)
+    parser.add_argument('--down_rate', type=int, default=8)
     parser.add_argument('--hidden_size', type=int, default=32, help='hidden state space size')
     parser.add_argument('--output_size', type=int, default=4)
     parser.add_argument('--layer_num', type=int, default=3, help='number of hidden layers of f_0 and f_u')
