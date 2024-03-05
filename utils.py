@@ -41,7 +41,6 @@ class Early_Stop_Callback:
             self.best_val_loss = current_val_loss
             self.wait = 0
             self.model.save_weights('./checkpoints/best_model.keras')
-            print(f"Current wait is {self.wait}.")
         else:
             self.wait += 1
             if self.wait >= self.patience:
@@ -54,8 +53,6 @@ class Early_Stop_Callback:
                     self.optimizer.lr = max(self.optimizer.lr * self.factor, self.min_lr)
                     print(f'Reducing learning rate to {self.optimizer.lr.numpy():.1e} and resetting patience.')
                     self.wait = 0
-            else:
-                print(f"Current wait is {self.wait}.")
 
 
 def save_experience(filename, data):
