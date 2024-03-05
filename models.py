@@ -5,9 +5,9 @@ import tensorflow_probability as tfp
 parallel_scan = tfp.math.scan_associative
 
 
-class ComplexDense(tf.keras.layers.Layer):
+class cDense(tf.keras.layers.Layer):
     def __init__(self, units, activation=None, bias=False, **kwargs):
-        super(ComplexDense, self).__init__(**kwargs)
+        super(cDense, self).__init__(**kwargs)
         self.kernel_imag = None
         self.kernel_real = None
         self.bias_imag = None
@@ -50,7 +50,7 @@ class ComplexDense(tf.keras.layers.Layer):
         return tf.complex(real_output, imag_output)
 
     def get_config(self):
-        config = super(ComplexDense, self).get_config()
+        config = super(cDense, self).get_config()
         config.update({"units": self.units, "activation": self.activation})
         return config
 
@@ -66,7 +66,7 @@ class complexMLP(tf.keras.Model):
         self.hidden_layers = [tf.keras.layers.Dense(hidden_size, activation='swish') for _ in range(layer_num)]
 
         # complex projection
-        self.output_layer = ComplexDense(output_size)
+        self.output_layer = cDense(output_size)
 
     @tf.function
     def call(self, inputs):
@@ -91,14 +91,14 @@ class complexNDM(tf.keras.Model):
         v = -0.5 * np.log(u1 * (sigma_max ** 2 - sigma_min ** 2) + sigma_min ** 2)
         theta = u2 * phase
 
-        self.v_log = tf.Variable(np.log(v), name='amplitude', dtype=tf.float32, trainable=True)
+        self.v_log = tf.Variable(np.log(v), name='magnitude', dtype=tf.float32, trainable=True)
         self.theta_log = tf.Variable(np.log(theta), name='phase', dtype=tf.float32, trainable=True)
 
         # complex output matrix
-        self.C = ComplexDense(output_size, bias=False, name='output_matrix')
+        self.C = cDense(output_size, bias=False, name='C')
 
-        self.f0 = complexMLP(hidden_size, hidden_size, layer_num, name='f0')
-        self.fu = complexMLP(hidden_size, hidden_size, layer_num, name='fu')
+        self.f0 = complexMLP(hidden_size, hidden_size, layer_num, name='f_0')
+        self.fu = complexMLP(hidden_size, hidden_size, layer_num, name='f_u')
 
     def effective_W(self):
         w = tf.math.exp(tf.complex(-tf.math.exp(self.v_log), tf.math.exp(self.theta_log)))
