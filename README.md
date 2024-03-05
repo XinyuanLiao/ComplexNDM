@@ -32,19 +32,13 @@ numpy==1.21.0
 h5py==3.6.0
 ```
 ## Run
-### Parallel computing
+Run the training program from the command line.
+
 ```
-python trainer.py --scan True
+# parallel computing; estimation_length=128; phase range is [-np.pi/10, np.pi/10]; hidden_size=32
+python trainer.py --scan True --estimation_length 128 --phase 0.314 --hidden_size 32
 ```
-### Serial computing
-```
-python trainer.py --scan False
-```
-### Phase priors
-```
-python trainer.py --phase 0.314  # phase range is [-np.pi/10, np.pi/10]
-python trainer.py --phase 3.14  # phase range is [-np.pi, np.pi]
-```
+
 # Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=XinyuanLiao/complexNDM&type=Date)](https://star-history.com/#XinyuanLiao/complexNDM&Date)
@@ -56,6 +50,6 @@ python trainer.py --phase 3.14  # phase range is [-np.pi, np.pi]
       title={Parallelizable Complex Neural Dynamics Models for Temperature Estimation with Hardware Acceleration},
       author={Xinyuan Liao, Shaowei Chen, Shuai Zhao},
       Url= {https://github.com/XinyuanLiao/complexNDN}, 
-      year={2023}
+      year={2024}
 }
 ```
