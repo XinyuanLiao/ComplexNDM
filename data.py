@@ -50,6 +50,7 @@ def MeanDown(array, down):
 
 
 def arr2seq(data, seqlen, down):
+    prediction_length, estimation_length = seqlen
     profiles = [p for p in data.profile_id.unique()]
     arr = []
     for index in profiles:
@@ -58,15 +59,16 @@ def arr2seq(data, seqlen, down):
         arr.append(down_samples)
     ret = []
     for profile in arr:
-        if profile.shape[0] > seqlen:
-            for i in range(profile.shape[0] - seqlen):
-                ret.append(profile[i:i + seqlen, 1:])
+        if profile.shape[0] > prediction_length+estimation_length:
+            for i in range(profile.shape[0] - (prediction_length+estimation_length)):
+                ret.append(profile[i:i + (prediction_length+estimation_length), 1:])
         else:
             continue
     return np.array(ret)
 
 
 def arr2seq_test(data, seqlen, down):
+    prediction_length, estimation_length = seqlen
     profiles = [p for p in data.profile_id.unique()]
     arr = []
     for index in profiles:
@@ -75,13 +77,13 @@ def arr2seq_test(data, seqlen, down):
         arr.append(down_samples)
     ret = []
     for profile in arr:
-        if profile.shape[0] > seqlen:
+        if profile.shape[0] > (prediction_length+estimation_length):
             i = 0
             while True:
-                if i + seqlen > profile.shape[0]:
+                if i + (prediction_length+estimation_length) > profile.shape[0]:
                     break
-                ret.append(profile[i:i + seqlen, 1:])
-                i += 127
+                ret.append(profile[i:i + (prediction_length+estimation_length), 1:])
+                i += estimation_length-1
         else:
             continue
     return np.array(ret)
