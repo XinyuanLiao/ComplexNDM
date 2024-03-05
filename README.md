@@ -10,7 +10,7 @@
 
 This repository includes the code for the paper _Parallelizable Complex Neural Dynamics Models for Temperature Estimation with Hardware Acceleration_.
 
-Since Pytorch does not support parallel scanning and JAX does not support Windows x86, this repo is built by TensorFlow, and the parallel scanning algorithm is implemented by the [```tfp.math.scan_associative```](https://www.tensorflow.org/probability/api_docs/python/tfp/math/scan_associative).
+Since PyTorch does not support parallel scanning and JAX does not support Windows x86, this repo is built by TensorFlow, and the parallel prefix sum scanning algorithm is implemented by the [```tfp.math.scan_associative```](https://www.tensorflow.org/probability/api_docs/python/tfp/math/scan_associative).
 
 <p align="center">
   <img src="https://github.com/XinyuanLiao/complexNDM/blob/main/Figs/frame.jpg" width="1000px"/>
@@ -36,6 +36,7 @@ Run the training program from the command line.
 
 ```
 # parallel computing; estimation_length=128; phase range is [-np.pi/10, np.pi/10]; hidden_size=32
+
 python trainer.py --scan True --estimation_length 128 --phase 0.314 --hidden_size 32
 ```
 
@@ -46,7 +47,7 @@ python trainer.py --scan True --estimation_length 128 --phase 0.314 --hidden_siz
 
 # Cite as
 ```
-@misc{liao2024parallelzable,
+@misc{liao2024parallelizable,
       title={Parallelizable Complex Neural Dynamics Models for Temperature Estimation with Hardware Acceleration},
       author={Xinyuan Liao, Shaowei Chen, Shuai Zhao},
       Url= {https://github.com/XinyuanLiao/complexNDN}, 
