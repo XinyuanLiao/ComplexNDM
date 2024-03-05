@@ -60,8 +60,8 @@ class complexMLP(tf.keras.Model):
     Complex Multilayer Perceptron
     """
 
-    def __init__(self, hidden_size, output_size, layer_num):
-        super(complexMLP, self).__init__()
+    def __init__(self, hidden_size, output_size, layer_num, name):
+        super(complexMLP, self).__init__(name=name)
         self.layer_num = layer_num
         self.hidden_layers = [tf.keras.layers.Dense(hidden_size, activation='swish') for _ in range(layer_num)]
 
@@ -77,12 +77,12 @@ class complexMLP(tf.keras.Model):
 
 
 class complexNDM(tf.keras.Model):
-    def __init__(self, hidden_size, output_size, layer_num,
-                 sigma_min=0.9, sigma_max=0.999, phase=6.28, mode='scan'):
+    def __init__(self, hidden_size=32, output_size=4, layer_num=3,
+                 sigma_min=0.9, sigma_max=0.999, phase=3.14, scan=True):
         super().__init__()
         assert hidden_size % 2 == 0, "Hidden_size should be even."
         self.hidden_size = hidden_size
-        self.mode = mode  # Serial calculation or parallel scan
+        self.scan = scan  # Serial calculation or parallel scan
 
         u1 = np.random.random(size=int(hidden_size / 2))
         u2 = np.random.random(size=int(hidden_size / 2))
@@ -91,14 +91,14 @@ class complexNDM(tf.keras.Model):
         v = -0.5 * np.log(u1 * (sigma_max ** 2 - sigma_min ** 2) + sigma_min ** 2)
         theta = u2 * phase
 
-        self.v_log = tf.Variable(np.log(v), dtype=tf.float32, trainable=True)
-        self.theta_log = tf.Variable(np.log(theta), dtype=tf.float32, trainable=True)
+        self.v_log = tf.Variable(np.log(v), name='amplitude', dtype=tf.float32, trainable=True)
+        self.theta_log = tf.Variable(np.log(theta), name='phase', dtype=tf.float32, trainable=True)
 
         # complex output matrix
-        self.C = ComplexDense(output_size, bias=False, name='output')
+        self.C = ComplexDense(output_size, bias=False, name='output_matrix')
 
-        self.f0 = complexMLP(hidden_size, hidden_size, layer_num)
-        self.fu = complexMLP(hidden_size, hidden_size, layer_num)
+        self.f0 = complexMLP(hidden_size, hidden_size, layer_num, name='f0')
+        self.fu = complexMLP(hidden_size, hidden_size, layer_num, name='fu')
 
     def effective_W(self):
         w = tf.math.exp(tf.complex(-tf.math.exp(self.v_log), tf.math.exp(self.theta_log)))
@@ -110,7 +110,7 @@ class complexNDM(tf.keras.Model):
         # Binary operator for parallel scan of linear recurrence.
         a_i, u_i = element_i
         a_j, u_j = element_j
-        return a_i * a_j, a_i * u_j + u_i
+        return a_j * a_i, a_j * u_i + u_j
 
     @tf.function
     def call(self, inputs):
@@ -119,8 +119,8 @@ class complexNDM(tf.keras.Model):
             inputs: [x0 (tensor): batch * seq * output_size, u (tensor): batch * n_steps * input_size]
 
         Returns:
-            output (tensor): n_steps * batch * output_size
-            hidden_states (tensor): n_steps * batch * output_size
+            output (tensor): batch * n_steps * output_size
+            hidden_states (tensor): (n_steps + 1) * batch * output_size
         """
         x0, u = inputs
         h0 = self.f0(x0)
@@ -128,15 +128,14 @@ class complexNDM(tf.keras.Model):
         ut = self.fu(u)
         state_matrix = self.effective_W()
 
-        if self.mode == 'scan':
+        if self.scan:
             state_matrix = tf.expand_dims(state_matrix, axis=0)
-            state_matrix = tf.repeat(state_matrix, repeats=ut.shape[1], axis=0)
             state_matrix = tf.expand_dims(state_matrix, axis=0)
-            state_matrix = tf.repeat(state_matrix, repeats=ut.shape[0], axis=0)
+            state_matrix = tf.tile(state_matrix, [ut.shape[0], ut.shape[1], 1])
 
             elements = (tf.transpose(state_matrix, [1, 0, 2]), tf.transpose(ut, [1, 0, 2]))
 
-            power, inner_states = parallel_scan(self.binary_operator_diag, elements)
+            power, inner_states = parallel_scan(self.binary_operator_diag, elements, max_num_levels=10)
 
             h = tf.expand_dims(h0, axis=0)
             h = tf.tile(h, [ut.shape[1], 1, 1])

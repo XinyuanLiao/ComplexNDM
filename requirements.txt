@@ -1,0 +1,5 @@
+tensorflow-gpu==2.10.0
+tensorflow-probability==0.16.0
+pandas==1.4.2
+numpy==1.21.0
+h5py==3.6.0
