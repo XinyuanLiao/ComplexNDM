@@ -77,6 +77,12 @@ Epoch 3/10000
 Valid Loss RMSE: 9.7771
 ```
 
+# Parallel Computing
+The parallel prefix sum algorithm accelerates the training process by at least **1.6 times** and the inference process by at least **1.8 times**. The parallel algorithm reduces the time complexity of model inference from _**O(N)**_ to _**O(logN)**_ for serial calculations. As the estimation length increases, the acceleration effect becomes more obvious.
+<p align="center">
+  <img src="https://github.com/XinyuanLiao/complexNDM/blob/main/Figs/para.jpg" width="500px"/>
+</p>
+
 # Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=XinyuanLiao/complexNDM&type=Date)](https://star-history.com/#XinyuanLiao/complexNDM&Date)
