@@ -5,7 +5,7 @@
 ![languages](https://img.shields.io/github/languages/top/XinyuanLiao/complexNDN)
 ![Size](https://img.shields.io/github/languages/code-size/XinyuanLiao/complexNDN)
 ![Static Badge](https://img.shields.io/badge/Framework-TensorFlow-orange)
-![Static Badge](https://img.shields.io/badge/Platform-Win_|_Mac-pink)
+![Static Badge](https://img.shields.io/badge/Platform-Win_x86-pink)
 </div>
 
 This repository includes the code for the paper _Parallelizable Complex Neural Dynamics Models for Temperature Estimation with Hardware Acceleration_.
