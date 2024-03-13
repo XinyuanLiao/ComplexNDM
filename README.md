@@ -20,18 +20,22 @@ Since PyTorch does not support parallel scanning and JAX does not support Window
 ## Dataset
 Download the dataset from [Kaggle](https://www.kaggle.com/datasets/wkirgsn/electric-motor-temperature) and put it into the [Data](https://github.com/XinyuanLiao/complexNDM/tree/main/Data) folder.
 <p align="center">
-  <img src="https://github.com/XinyuanLiao/complexNDM/blob/main/Figs/dataset.jpg" width="1000px"/>
+  <img src="https://github.com/XinyuanLiao/complexNDM/blob/main/Figs/dataset.jpg" width="1200px"/>
 </p>
 
-The data set comprises several sensor data collected from a permanent magnet synchronous motor (PMSM) deployed on a test bench. The PMSM represents a german OEM's prototype model. Test bench measurements were collected by the LEA department at Paderborn University.
+### Context
+>The data set comprises several sensor data collected from a permanent magnet synchronous motor (PMSM) deployed on a test bench. The PMSM represents a german OEM's prototype model. Test bench measurements were collected by the LEA department at Paderborn University.
 
-All recordings are sampled at 2 Hz. The data set consists of multiple measurement sessions, which can be distinguished from each other by column "profile_id". A measurement session can be between one and six hours long.
-
-The motor is excited by hand-designed driving cycles denoting a reference motor speed and a reference torque.
-Currents in d/q-coordinates (columns "i_d" and i_q") and voltages in d/q-coordinates (columns "u_d" and "u_q") are a result of a standard control strategy trying to follow the reference speed and torque.
-Columns "motor_speed" and "torque" are the resulting quantities achieved by that strategy, derived from set currents and voltages.
-
-Most driving cycles denote random walks in the speed-torque-plane in order to imitate real world driving cycles to a more accurate degree than constant excitations and ramp-ups and -downs would.
+### Content
+>All recordings are sampled at 2 Hz. The data set consists of multiple measurement sessions, which can be distinguished from each other by column "profile_id". A measurement session can be between one and six hours long.
+>
+>The motor is excited by hand-designed driving cycles denoting a reference motor speed and a reference torque.
+>
+>Currents in d/q-coordinates (columns "i_d" and i_q") and voltages in d/q-coordinates (columns "u_d" and "u_q") are a result of a standard control strategy trying to follow the reference speed and torque.
+>
+>Columns "motor_speed" and "torque" are the resulting quantities achieved by that strategy, derived from set currents and voltages.
+>
+>Most driving cycles denote random walks in the speed-torque-plane in order to imitate real world driving cycles to a more accurate degree than constant excitations and ramp-ups and -downs would.
 ## Configuration
 ```
 pip install -r requirements.txt
