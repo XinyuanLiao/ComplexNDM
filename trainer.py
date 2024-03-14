@@ -61,7 +61,7 @@ def trainer(arguments):
 
     x_train, y_train = (train[:, 0:arguments.prediction_length, 10:].reshape(train.shape[0], -1),
                         train[:, arguments.prediction_length:, 0:10]), train[:, arguments.prediction_length:, 10:]
-    batch_size, buffer_size = 1028, int(train.shape[0] * 1.2)
+    batch_size, buffer_size = 1024, int(train.shape[0] * 1.2)
     tra_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train)).shuffle(buffer_size)
     ds_train_batch = tra_dataset.batch(batch_size)
 
