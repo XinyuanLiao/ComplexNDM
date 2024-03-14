@@ -53,7 +53,8 @@ Run the training program from the command line.
 
 ```
 # parallel computing; estimation_length=128; phase range is [-np.pi/10, np.pi/10]; hidden_size=32
-
+```
+```
 python trainer.py --scan True --estimation_length 128 --phase 0.314 --hidden_size 32
 ```
 
