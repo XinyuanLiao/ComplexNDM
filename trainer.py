@@ -9,7 +9,23 @@ from models import *
 from data import *
 
 
-def loss(model, x, y, training):
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--seed', type=int, default=2024, help='random seed')
+    parser.add_argument('--prediction_length', type=int, default=16)
+    parser.add_argument('--estimation_length', type=int, default=128)
+    parser.add_argument('--num_samples', type=int, default=200000)
+    parser.add_argument('--down_rate', type=int, default=8)
+    parser.add_argument('--hidden_size', type=int, default=32, help='hidden state space size')
+    parser.add_argument('--output_size', type=int, default=4)
+    parser.add_argument('--layer_num', type=int, default=3, help='number of hidden layers of f_0 and f_u')
+    parser.add_argument('--phase', type=float, default=np.pi / 10, help='phase range of eigenvalues')
+    parser.add_argument('--scan', type=bool, default=True, help='parallel or serial')
+    args = parser.parse_args()
+    return args
+
+
+def Loss(model, x, y, training):
     y_pred, hidden_states = model(x, training=training)
     # Inference Loss
     loss_inf = smoothl1loss(y, y_pred)
@@ -26,15 +42,13 @@ def loss(model, x, y, training):
 
 def grad(model, inputs, targets):
     with tf.GradientTape() as tape:
-        loss_value, loss_inf, loss_smth = loss(model, inputs, targets, training=True)
+        loss_value, loss_inf, loss_smth = Loss(model, inputs, targets, training=True)
     return loss_value, tape.gradient(loss_value, model.trainable_variables), loss_inf, loss_smth
 
 
 # Train
 def trainer(arguments):
     tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
-
-    seed_tensorflow(arguments.seed)
 
     # data load
     train, valid, test = loadData((arguments.prediction_length,
@@ -104,18 +118,11 @@ def trainer(arguments):
     return test_loss, l_max
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--seed', type=int, default=2024, help='random seed')
-    parser.add_argument('--prediction_length', type=int, default=16)
-    parser.add_argument('--estimation_length', type=int, default=128)
-    parser.add_argument('--num_samples', type=int, default=200000)
-    parser.add_argument('--down_rate', type=int, default=8)
-    parser.add_argument('--hidden_size', type=int, default=32, help='hidden state space size')
-    parser.add_argument('--output_size', type=int, default=4)
-    parser.add_argument('--layer_num', type=int, default=3, help='number of hidden layers of f_0 and f_u')
-    parser.add_argument('--phase', type=float, default=np.pi / 10, help='phase range of eigenvalues')
-    parser.add_argument('--scan', type=bool, default=True, help='parallel or serial')
-    args = parser.parse_args()
-
+def main():
+    args = parse_arguments()
+    seed_tensorflow(args.seed)
     trainer(args)
+
+
+if __name__ == '__main__':
+    main()
