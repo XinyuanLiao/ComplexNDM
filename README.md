@@ -10,7 +10,7 @@
 
 This repository includes the code for the paper _Parallelizable Complex Neural Dynamics Models for Temperature Estimation with Hardware Acceleration_.
 
-Since PyTorch does not support parallel scanning and JAX does not support Windows x86, this repo is built by TensorFlow, and the parallel prefix sum scanning algorithm is implemented by the [```tfp.math.scan_associative```](https://www.tensorflow.org/probability/api_docs/python/tfp/math/scan_associative).
+Since _**PyTorch**_ does not support parallel scanning and _**JAX**_ does not support Windows x64_86, this repo is built by _**TensorFlow-gpu**_, and the parallel prefix sum scanning algorithm is implemented by the [```tfp.math.scan_associative```](https://www.tensorflow.org/probability/api_docs/python/tfp/math/scan_associative).
 
 <p align="center">
   <img src="https://github.com/XinyuanLiao/complexNDM/blob/main/Figs/frame.jpg" width="1000px"/>
