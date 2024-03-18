@@ -5,6 +5,7 @@ import tensorflow_probability as tfp
 parallel_scan = tfp.math.scan_associative
 
 
+# Dense layer with complex-valued parameters
 class cDense(tf.keras.layers.Layer):
     def __init__(self, units, activation=None, bias=False, **kwargs):
         super(cDense, self).__init__(**kwargs)
@@ -91,23 +92,34 @@ class complexNDM(tf.keras.Model):
         v = -0.5 * np.log(u1 * (sigma_max ** 2 - sigma_min ** 2) + sigma_min ** 2)
         theta = u2 * phase
 
+        # stable parameterization of the magnitude of the state matrix A
         self.v_log = tf.Variable(np.log(v), name='magnitude', dtype=tf.float32, trainable=True)
+
+        # low oscillation frequency parameterization of the phase of the state matrix A
         self.theta_log = tf.Variable(np.log(theta), name='phase', dtype=tf.float32, trainable=True)
 
-        # complex output matrix
+        # complex output matrix, which is complex-valued
         self.C = cDense(output_size, bias=False, name='C')
 
+        # approximate the init hidden state
         self.f0 = complexMLP(hidden_size, hidden_size, layer_num, name='f_0')
+
+        # map the control input into the hidden state space
         self.fu = complexMLP(hidden_size, hidden_size, layer_num, name='f_u')
 
     def effective_W(self):
+        # exponential parameterization
         w = tf.math.exp(tf.complex(-tf.math.exp(self.v_log), tf.math.exp(self.theta_log)))
+        
+        # diagonal conjugate parameterization
         effective_w = tf.concat((w, tf.math.conj(w)), axis=0)
         return effective_w
 
     @tf.function(experimental_compile=True)
     def binary_operator_diag(self, element_i, element_j):
-        # Binary operator for parallel scan of linear recurrence.
+        # Binary operator for the parallel scan of the parallelizable neural dynamics model.
+        # a_j * a_i is the power of state matrix A
+        # a_j * u_i + u_j is the weighted prefix sum with the coefficient A
         a_i, u_i = element_i
         a_j, u_j = element_j
         return a_j * a_i, a_j * u_i + u_j
@@ -123,27 +135,37 @@ class complexNDM(tf.keras.Model):
             hidden_states (tensor): (n_steps + 1) * batch * output_size
         """
         x0, u = inputs
+        # init hidden state
         h0 = self.f0(x0)
-
+        # the mapping of control input in the hidden state space
         ut = self.fu(u)
+        # diagonal state matrix
         state_matrix = self.effective_W()
 
+        # parallel scan
         if self.scan:
+            # clone the state matrix as the shape of [batch, n_steps, state_matrix]
             state_matrix = tf.expand_dims(state_matrix, axis=0)
             state_matrix = tf.expand_dims(state_matrix, axis=0)
             state_matrix = tf.tile(state_matrix, [ut.shape[0], ut.shape[1], 1])
 
             elements = (tf.transpose(state_matrix, [1, 0, 2]), tf.transpose(ut, [1, 0, 2]))
 
+            # power is [A, A^2, ... , A^n_steps] and inner_states is latter half component of Eq. (6)
             power, inner_states = parallel_scan(self.binary_operator_diag, elements, max_num_levels=10)
 
+            # clone h0 as the shape of [n_steps, batch, h0]
             h = tf.expand_dims(h0, axis=0)
             h = tf.tile(h, [ut.shape[1], 1, 1])
+
+            # return [A * h0, A^2 * h0, ... , A^n_steps * h0]
             h = tf.multiply(h, power)
+            
             inner_states = tf.add(h, inner_states)
             outputs = tf.transpose(tf.math.real(self.C(inner_states)), [1, 0, 2])
 
             hidden_states = tf.concat([tf.expand_dims(h0, axis=0), inner_states], axis=0)
+        # serial computing
         else:
             hidden_states = [h0]
             n_steps = ut.shape[1]
