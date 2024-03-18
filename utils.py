@@ -5,6 +5,7 @@ import numpy as np
 import tensorflow as tf
 
 
+# fixed random seed
 def seed_tensorflow(seed=2024):
     os.environ['PYTHONHASHSEED'] = str(seed)
     random.seed(seed)
@@ -55,6 +56,7 @@ class Early_Stop_Callback:
                     self.wait = 0
 
 
+# save test result to a txt document
 def save_experience(filename, data):
     with open(filename, 'a') as f:
         for i in range(len(data)):
