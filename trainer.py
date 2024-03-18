@@ -33,9 +33,12 @@ def Loss(model, x, y, training):
     loss_smth = smoothl1loss(tf.math.abs(hidden_states[0:-1] - hidden_states[1:]),
                              tf.constant(0, shape=tf.shape(hidden_states[0:-1]), dtype=tf.float32))
     loss_inf, loss_smth = tf.math.reduce_mean(loss_inf), tf.math.reduce_mean(loss_smth)
+
+    # The factor to uniform the scale between loss_inf and loss_smth
     ratio = tf.divide(loss_smth, loss_inf)
     ratio = tf.stop_gradient(ratio)
-
+    
+    # coefficient Q is 0.1
     loss = loss_inf + loss_smth / (10 * ratio)
     return loss, loss_inf, loss_smth
 
@@ -61,7 +64,10 @@ def trainer(arguments):
 
     x_train, y_train = (train[:, 0:arguments.prediction_length, 10:].reshape(train.shape[0], -1),
                         train[:, arguments.prediction_length:, 0:10]), train[:, arguments.prediction_length:, 10:]
+
+    # buffer_size is a little bigger than the amount of the training data to upset the data within per batch
     batch_size, buffer_size = 1024, int(train.shape[0] * 1.2)
+    
     tra_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train)).shuffle(buffer_size)
     ds_train_batch = tra_dataset.batch(batch_size)
 
@@ -71,7 +77,7 @@ def trainer(arguments):
     x_test, y_test = (test[:, 0:arguments.prediction_length, 10:].reshape(test.shape[0], -1),
                       test[:, arguments.prediction_length:, 0:10]), test[:, arguments.prediction_length:, 10:]
 
-    # model build
+    # model setup and build
     model = complexNDM(hidden_size=arguments.hidden_size,
                        output_size=arguments.output_size,
                        layer_num=arguments.layer_num,
@@ -84,7 +90,13 @@ def trainer(arguments):
     optimizer = tf.keras.optimizers.Adam(learning_rate=2e-4)
     train_loss_results = []
     num_epochs = 10000
-    earlystopping = Early_Stop_Callback(model=model, optimizer=optimizer, patience=20, factor=0.5, min_lr=0.00001,
+
+    # see utils.py for the details
+    earlystopping = Early_Stop_Callback(model=model, 
+                                        optimizer=optimizer, 
+                                        patience=20, 
+                                        factor=0.5, 
+                                        min_lr=0.00001,
                                         repeat=3)
 
     for epoch in range(num_epochs):
@@ -109,13 +121,16 @@ def trainer(arguments):
             break
 
     # test
+    # load the best model parameter
     model.load_weights('./checkpoints/best_model.keras')
+    
     predictions, _ = model(x_test, training=False)
+    
     test_loss = tf.math.sqrt(tf.math.reduce_mean(tf.math.square(100 * predictions - 100 * y_test)))
+    # maximum of the error, i.e., infinite norm
     l_max = tf.math.reduce_max(tf.math.abs(100 * predictions - 100 * y_test))
     print("Test Loss RMSE: {:.4f}".format(test_loss))
     print("Test Loss l_max: {:.4f}".format(l_max))
-    return test_loss, l_max
 
 
 def main():
