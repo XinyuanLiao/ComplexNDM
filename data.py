@@ -15,8 +15,9 @@ def loadData(windows, num_samples, down):
 
     temperature_scale = 100  # in deg C
     non_temperature_cols = [c for c in data if c not in temperature_cols + ['profile_id']]
-    data.loc[:, temperature_cols] /= temperature_scale
-    data.loc[:, non_temperature_cols] /= data.loc[:, non_temperature_cols].abs().max(axis=0)
+    
+    data.loc[:, temperature_cols] /= temperature_scale  # normalization for temperature data
+    data.loc[:, non_temperature_cols] /= data.loc[:, non_temperature_cols].abs().max(axis=0)  # normalization for non temperature data
 
     # extra feats (FE)
     if {'i_d', 'i_q', 'u_d', 'u_q'}.issubset(set(data.columns.tolist())):
@@ -36,6 +37,7 @@ def loadData(windows, num_samples, down):
     return train, valid, test
 
 
+# dowm sampling
 def MeanDown(array, down):
     n = array.shape[0]
     merge = []
@@ -49,6 +51,7 @@ def MeanDown(array, down):
     return np.array(merge)
 
 
+# the slide of the windows is 1 
 def arr2seq(data, seqlen, down):
     prediction_length, estimation_length = seqlen
     profiles = [p for p in data.profile_id.unique()]
@@ -67,6 +70,7 @@ def arr2seq(data, seqlen, down):
     return np.array(ret)
 
 
+# the slide of the windows is estimation length
 def arr2seq_test(data, seqlen, down):
     prediction_length, estimation_length = seqlen
     profiles = [p for p in data.profile_id.unique()]
