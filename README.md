@@ -20,22 +20,9 @@ Since _**PyTorch**_ does not support parallel scanning and _**JAX**_ does not su
 ## Dataset
 Download the dataset from [Kaggle](https://www.kaggle.com/datasets/wkirgsn/electric-motor-temperature) and put it into the [Data](https://github.com/XinyuanLiao/complexNDM/tree/main/Data) folder.
 <p align="center">
-  <img src="https://github.com/XinyuanLiao/complexNDM/blob/main/Figs/dataset.jpg" width="1200px"/>
+  <img src="https://github.com/XinyuanLiao/complexNDM/blob/main/Figs/dataset.jpg" width="1400px"/>
 </p>
 
-### Context
->The data set comprises several sensor data collected from a permanent magnet synchronous motor (PMSM) deployed on a test bench. The PMSM represents a german OEM's prototype model. Test bench measurements were collected by the LEA department at Paderborn University.
-
-### Content
->All recordings are sampled at 2 Hz. The data set consists of multiple measurement sessions, which can be distinguished from each other by column "profile_id". A measurement session can be between one and six hours long.
->
->The motor is excited by hand-designed driving cycles denoting a reference motor speed and a reference torque.
->
->Currents in d/q-coordinates (columns "i_d" and i_q") and voltages in d/q-coordinates (columns "u_d" and "u_q") are a result of a standard control strategy trying to follow the reference speed and torque.
->
->Columns "motor_speed" and "torque" are the resulting quantities achieved by that strategy, derived from set currents and voltages.
->
->Most driving cycles denote random walks in the speed-torque-plane in order to imitate real world driving cycles to a more accurate degree than constant excitations and ramp-ups and -downs would.
 ## Configuration
 ```
 pip install -r requirements.txt
@@ -52,47 +39,7 @@ h5py==3.6.0
 Run the training program from the command line.
 
 ```
-# parallel computing; estimation_length=128; phase range is [-np.pi/10, np.pi/10]; hidden_size=32
-```
-```
 python trainer.py --scan True --estimation_length 128 --phase 0.314 --hidden_size 32
-```
-
-## Training
-```
-train shape:  (145772, 144, 14)
-valid shape:  (32, 144, 14)
-test shape:  (53, 144, 14)
-Model: "complex_ndm"
-_________________________________________________________________
- Layer (type)                Output Shape              Param #
-=================================================================
- C (cDense)                  multiple                  264
-
- f_0 (complexMLP)            multiple                  6304
-
- f_u (complexMLP)            multiple                  4576
-
-=================================================================
-Total params: 11,176
-Trainable params: 11,040
-Non-trainable params: 136
-_________________________________________________________________
-Epoch 0/10000
-142/142 [==============================] - 29s 125ms/step - Loss_inf: 0.3893 - Loss_smth: 0.0196
-Valid Loss RMSE: 20.4429
-
-Epoch 1/10000
-142/142 [==============================] - 10s 70ms/step - Loss_inf: 0.0521 - Loss_smth: 0.0122
-Valid Loss RMSE: 13.3631
-
-Epoch 2/10000
-142/142 [==============================] - 10s 72ms/step - Loss_inf: 0.0304 - Loss_smth: 0.0095
-Valid Loss RMSE: 10.8444
-
-Epoch 3/10000
-142/142 [==============================] - 10s 71ms/step - Loss_inf: 0.0231 - Loss_smth: 0.0079
-Valid Loss RMSE: 9.7771
 ```
 
 # Parallel Computing
