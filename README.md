@@ -10,7 +10,7 @@
 
 This repository includes the code for the paper _Parallelizable Complex Neural Dynamics Models for Temperature Estimation with Hardware Acceleration_.
 
-Since _**PyTorch**_ does not support parallel scanning and _**JAX**_ does not support Windows x64_86, this repo is built by _**TensorFlow-gpu**_, and the parallel prefix sum scanning algorithm is implemented by the [```tfp.math.scan_associative```](https://www.tensorflow.org/probability/api_docs/python/tfp/math/scan_associative).
+Since _**PyTorch**_ does not support parallel scanning and _**JAX**_ does not support Windows x64_86, this repo is built by _**TensorFlow-gpu**_, and the parallel prefix sum scanning algorithm is implemented by the [```tfp.math.scan_associative```](https://www.tensorflow.org/probability/api_docs/python/tfp/math/scan_associative). The parallel prefix sum algorithm accelerates the training process by at least **1.6 times** and the inference process by at least **1.8 times**. The parallel algorithm reduces the time complexity from _**O(N)**_ to _**O(logN)**_ for serial calculations. As the estimation length increases, the acceleration effect becomes more obvious.
 
 <p align="center">
   <img src="https://github.com/XinyuanLiao/complexNDM/blob/main/Figs/frame.jpg" width="1000px"/>
@@ -41,12 +41,6 @@ Run the training program from the command line.
 ```
 python trainer.py --scan True --estimation_length 128 --phase 0.314 --hidden_size 32
 ```
-
-# Parallel Computing
-The parallel prefix sum algorithm accelerates the training process by at least **1.6 times** and the inference process by at least **1.8 times**. The parallel algorithm reduces the time complexity of model inference from _**O(N)**_ to _**O(logN)**_ for serial calculations. As the estimation length increases, the acceleration effect becomes more obvious.
-<p align="center">
-  <img src="https://github.com/XinyuanLiao/complexNDM/blob/main/Figs/para.jpg" width="500px"/>
-</p>
 
 # Star History
 
