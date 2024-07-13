@@ -128,7 +128,7 @@ class complexNDM(tf.keras.Model):
     def call(self, inputs):
         """
         Args:
-            inputs: [x0 (tensor): batch * seq * output_size, u (tensor): batch * n_steps * input_size]
+            inputs: [x0 (tensor): batch * (seq * output_size), u (tensor): batch * n_steps * input_size]
 
         Returns:
             output (tensor): batch * n_steps * output_size
