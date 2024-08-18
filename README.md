@@ -39,7 +39,11 @@ h5py==3.6.0
 Run the training program from the command line.
 
 ```
-python trainer.py --scan True --estimation_length 128 --phase 0.314 --hidden_size 32
+python trainer.py
+--scan True
+--estimation_length 128
+--phase 0.314
+--hidden_size 32
 ```
 
 # Star History
