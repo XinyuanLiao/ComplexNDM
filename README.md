@@ -2,10 +2,10 @@
 <h1>ComplexNDN: Complex Neural Dynamics Models</h1>
 
 ![Static Badge](https://img.shields.io/hexpm/l/plug)
-![languages](https://img.shields.io/github/languages/top/XinyuanLiao/complexNDN)
-![Size](https://img.shields.io/github/languages/code-size/XinyuanLiao/complexNDN)
-![Static Badge](https://img.shields.io/badge/Framework-TensorFlow-orange)
-![Static Badge](https://img.shields.io/badge/Test_Platform-Windows_x64-pink)
+![GitHub top language](https://img.shields.io/github/languages/top/xinyuanliao/complexndm)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/xinyuanliao/complexndm)
+![Static Badge](https://img.shields.io/badge/Framework-TensorFlow_v2-orange)
+![Static Badge](https://img.shields.io/badge/Test_Platform-Windows-pink)
 </div>
 
 This repository includes the code for the paper _Parallelizable Complex Neural Dynamics Models for Temperature Estimation with Hardware Acceleration_.
@@ -39,11 +39,7 @@ h5py==3.6.0
 Run the training program from the command line.
 
 ```
-python trainer.py
---scan True
---estimation_length 128
---phase 0.314
---hidden_size 32
+python trainer.py --scan True --estimation_length 128 --phase 0.314 --hidden_size 32
 ```
 
 # Star History
