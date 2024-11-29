@@ -52,8 +52,7 @@ python trainer.py --scan True --estimation_length 128 --phase 0.314 --hidden_siz
 @article{liao5033161parallelizable,
   title={Parallelizable Complex Neural Dynamics Models for Temperature Estimation with Hardware Acceleration},
   author={Liao, Xinyuan and Chen, Shaowei and Zhao, Shuai},
-  journal={Available at SSRN: },
-  doi={https://ssrn.com/abstract=5033161},
+  journal={Available at SSRN 5033161},
   year={2024}
 }
 ```
