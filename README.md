@@ -17,11 +17,6 @@ Since _**PyTorch**_ does not support parallel scanning and _**JAX**_ does not su
 </p>
 
 # Quick start
-## Dataset
-Download the dataset from [Kaggle](https://www.kaggle.com/datasets/wkirgsn/electric-motor-temperature) and put it into the [Data](https://github.com/XinyuanLiao/complexNDM/tree/main/Data) folder.
-<p align="center">
-  <img src="https://github.com/XinyuanLiao/complexNDM/blob/main/Figs/dataset.jpg" width="1400px"/>
-</p>
 
 ## Configuration
 ```
@@ -34,6 +29,7 @@ tensorflow-probability==0.16.0
 pandas==1.4.2
 numpy==1.21.0
 h5py==3.6.0
+kagglehub==0.3.6
 ```
 ## Run
 Run the training program from the command line.
