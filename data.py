@@ -1,9 +1,13 @@
 import numpy as np
 import pandas as pd
+import kagglehub
 
 
 def loadData(windows, num_samples, down):
-    data = pd.read_csv('./Data/measures_v2.csv')
+    path = kagglehub.dataset_download("wkirgsn/electric-motor-temperature")
+
+    print("Path to dataset files:", path)
+    data = pd.read_csv(path+'/measures_v2.csv')
     input_cols = ['ambient', 'coolant', 'u_d', 'u_q', 'motor_speed', 'torque', 'i_d', 'i_q', 'i_s', 'u_s']
     target_cols = ['pm', 'stator_yoke', 'stator_tooth', 'stator_winding']
     temperature_cols = target_cols + ['ambient', 'coolant']
