@@ -136,11 +136,11 @@ def trainer(arguments):
     print("Test Loss RMSE: {:.4f}".format(jnp.sqrt(test_loss)))
     print("Test Loss l_max: {:.4f}".format(l_max))
 
-    # bytes_output = flax.serialization.to_bytes(state.params)
-    # with open('/root/autodl-tmp/Jax_ComplexNDM/checkpoints/best_model.flax', 'wb') as f:
-    #     f.write(bytes_output)
+    bytes_output = flax.serialization.to_bytes(state.params)
+    with open('checkpoints/best_model.flax', 'wb') as f:
+        f.write(bytes_output)
 
-    with open("/root/autodl-tmp/Jax_ComplexNDM/exp.txt", "a") as file:
+    with open("exp.txt", "a") as file:
         content = (f"Seed: {arguments.seed}, r_min: {arguments.r_min}, r_max: {arguments.r_max}, "
                    f"phase: {arguments.phase:.3f}, MSE: {test_loss:.2f}, RMSE: {jnp.sqrt(test_loss):.2f}, "
                    f"l_max: {l_max:.2f}")
