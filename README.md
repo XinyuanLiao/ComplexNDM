@@ -34,7 +34,7 @@ kagglehub==0.3.6
 Run the training program from the command line.
 
 ```
-python trainer.py
+python trainer.py --scan --is_PILF
 ```
 
 # Star History
