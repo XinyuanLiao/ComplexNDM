@@ -5,25 +5,21 @@ import kagglehub
 
 def loadData(windows, num_samples, down):
     path = kagglehub.dataset_download("wkirgsn/electric-motor-temperature")
-
-    print("Path to dataset files:", path)
-    data = pd.read_csv(path+'/measures_v2.csv')
+    data = pd.read_csv(path + '/measures_v2.csv')
     input_cols = ['ambient', 'coolant', 'u_d', 'u_q', 'motor_speed', 'torque', 'i_d', 'i_q', 'i_s', 'u_s']
     target_cols = ['pm', 'stator_yoke', 'stator_tooth', 'stator_winding']
     temperature_cols = target_cols + ['ambient', 'coolant']
     val_profiles = [58]
     test_profiles = [65, 72]
-    # test_profiles = [65]
     train_profiles = [p for p in data.profile_id.unique() if p not in val_profiles + test_profiles]
     new_cols = ['profile_id'] + input_cols + target_cols
 
-    temperature_scale = 100  # in deg C
+    temperature_scale = 100
     non_temperature_cols = [c for c in data if c not in temperature_cols + ['profile_id']]
-    
-    data.loc[:, temperature_cols] /= temperature_scale  # normalization for temperature data
-    data.loc[:, non_temperature_cols] /= data.loc[:, non_temperature_cols].abs().max(axis=0)  # normalization for non temperature data
 
-    # extra feats (FE)
+    data.loc[:, temperature_cols] /= temperature_scale
+    data.loc[:, non_temperature_cols] /= data.loc[:, non_temperature_cols].abs().max(axis=0)
+
     if {'i_d', 'i_q', 'u_d', 'u_q'}.issubset(set(data.columns.tolist())):
         extra_feats = {'i_s': lambda x: np.sqrt((x['i_d'] ** 2 + x['i_q'] ** 2)),
                        'u_s': lambda x: np.sqrt((x['u_d'] ** 2 + x['u_q'] ** 2))}
@@ -41,7 +37,6 @@ def loadData(windows, num_samples, down):
     return train, valid, test
 
 
-# dowm sampling
 def MeanDown(array, down):
     n = array.shape[0]
     merge = []
@@ -55,7 +50,6 @@ def MeanDown(array, down):
     return np.array(merge)
 
 
-# the slide of the windows is 1 
 def arr2seq(data, seqlen, down):
     prediction_length, estimation_length = seqlen
     profiles = [p for p in data.profile_id.unique()]
@@ -66,15 +60,14 @@ def arr2seq(data, seqlen, down):
         arr.append(down_samples)
     ret = []
     for profile in arr:
-        if profile.shape[0] > prediction_length+estimation_length:
-            for i in range(profile.shape[0] - (prediction_length+estimation_length)):
-                ret.append(profile[i:i + (prediction_length+estimation_length), 1:])
+        if profile.shape[0] > prediction_length + estimation_length:
+            for i in range(profile.shape[0] - (prediction_length + estimation_length)):
+                ret.append(profile[i:i + (prediction_length + estimation_length), 1:])
         else:
             continue
     return np.array(ret)
 
 
-# the slide of the windows is estimation length
 def arr2seq_test(data, seqlen, down):
     prediction_length, estimation_length = seqlen
     profiles = [p for p in data.profile_id.unique()]
@@ -85,13 +78,13 @@ def arr2seq_test(data, seqlen, down):
         arr.append(down_samples)
     ret = []
     for profile in arr:
-        if profile.shape[0] > (prediction_length+estimation_length):
+        if profile.shape[0] > (prediction_length + estimation_length):
             i = 0
             while True:
-                if i + (prediction_length+estimation_length) > profile.shape[0]:
+                if i + (prediction_length + estimation_length) > profile.shape[0]:
                     break
-                ret.append(profile[i:i + (prediction_length+estimation_length), 1:])
-                i += estimation_length-1
+                ret.append(profile[i:i + (prediction_length + estimation_length), 1:])
+                i += estimation_length - 1
         else:
             continue
     return np.array(ret)
