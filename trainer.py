@@ -1,5 +1,8 @@
 import argparse
+import time
+
 import flax
+import jax
 from torch.utils.data import DataLoader, TensorDataset
 from flax.training import train_state
 import optax
@@ -17,7 +20,7 @@ def parse_arguments():
     parser.add_argument('--estimation_length', type=int, default=128)
     parser.add_argument('--num_samples', type=int, default=200000)
     parser.add_argument('--down_rate', type=int, default=8)
-    parser.add_argument('--hidden_size', type=int, default=16, help='hidden state space size')
+    parser.add_argument('--hidden_size', type=int, default=32, help='hidden state space size')
     parser.add_argument('--output_size', type=int, default=4)
     parser.add_argument('--num_epochs', type=int, default=300)
     parser.add_argument('--layer_num', type=int, default=2, help='number of hidden layers of f_0 and f_u')
@@ -70,11 +73,11 @@ def trainer(arguments):
     print(model.tabulate(rng, dummy_input))
 
     schedule = optax.schedules.warmup_cosine_decay_schedule(
-      init_value=1e-7,
-      peak_value=2e-4,
-      warmup_steps=0.1*arguments.num_epochs*(len(dataset)//batch_size),
-      decay_steps=arguments.num_epochs*(len(dataset)//batch_size),
-      end_value=1e-7
+        init_value=1e-7,
+        peak_value=2e-4,
+        warmup_steps=0.1 * arguments.num_epochs * (len(dataset) // batch_size),
+        decay_steps=arguments.num_epochs * (len(dataset) // batch_size),
+        end_value=1e-7
     )
 
     state = train_state.TrainState.create(
@@ -113,19 +116,24 @@ def trainer(arguments):
         epoch_loss_avg = 0.0
         print(f"Epoch {epoch + 1}/{arguments.num_epochs}\n---------------")
         with tqdm(train_data, desc="Training", unit="batch") as tqdm_bar:
-          for i, (x1, x2, y) in enumerate(tqdm_bar):
-              x1 = jnp.array(x1.numpy())
-              x2 = jnp.array(x2.numpy())
-              y = jnp.array(y.numpy())
+            start_time = time.time()
 
-              state, current_loss = train_step(state, (x1, x2), y)
-              epoch_loss_avg += current_loss
+            for i, (x1, x2, y) in enumerate(tqdm_bar):
+                x1 = jnp.array(x1.numpy())
+                x2 = jnp.array(x2.numpy())
+                y = jnp.array(y.numpy())
 
-              current_lr = schedule(state.step)
-              tqdm_bar.set_postfix(loss=current_loss, lr=current_lr)
+                state, current_loss = train_step(state, (x1, x2), y)
+                epoch_loss_avg += current_loss
+
+                current_lr = schedule(state.step)
+                tqdm_bar.set_postfix(loss=current_loss, lr=current_lr)
+            end_time = time.time()
 
         epoch_loss_avg /= (i + 1)
+        batch_avg_time = (end_time-start_time)/(i+1)
         print("Epoch Avg Loss: {:.5f}".format(epoch_loss_avg))
+        print("Batch Avg Time: {:.3f} s".format(batch_avg_time))
 
         validations, _ = model.apply(state.params, x_valid)
         valid_loss = jnp.sqrt(jnp.mean(jnp.square(100 * validations - 100 * y_valid)))
@@ -138,11 +146,11 @@ def trainer(arguments):
     print("Test Loss RMSE: {:.4f}".format(jnp.sqrt(test_loss)))
     print("Test Loss l_max: {:.4f}".format(l_max))
 
-    bytes_output = flax.serialization.to_bytes(state.params)
-    with open('checkpoints/best_model.flax', 'wb') as f:
-        f.write(bytes_output)
+    # bytes_output = flax.serialization.to_bytes(state.params)
+    # with open('/root/autodl-tmp/Jax_ComplexNDM/checkpoints/best_model.flax', 'wb') as f:
+    #     f.write(bytes_output)
 
-    with open("exp.txt", "a") as file:
+    with open("/root/autodl-tmp/Jax_ComplexNDM/exp.txt", "a") as file:
         content = (f"Seed: {arguments.seed}, r_min: {arguments.r_min}, r_max: {arguments.r_max}, "
                    f"phase: {arguments.phase:.3f}, MSE: {test_loss:.2f}, RMSE: {jnp.sqrt(test_loss):.2f}, "
                    f"l_max: {l_max:.2f}")
@@ -152,6 +160,7 @@ def trainer(arguments):
 def main():
     args = parse_arguments()
     seed_random(args.seed)
+    print(f'scan: {args.scan}, is_PILF: {args.is_PILF}')
     trainer(args)
 
 
