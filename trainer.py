@@ -24,8 +24,8 @@ def parse_arguments():
     parser.add_argument('--phase', type=float, default=jnp.pi / 10, help='phase range of eigenvalues')
     parser.add_argument('--r_max', type=float, default=1.0)
     parser.add_argument('--r_min', type=float, default=0.9)
-    parser.add_argument('--is_PILF', type=bool, default=True, help='whether use the loss_smth')
-    parser.add_argument('--scan', type=bool, default=True, help='parallel or serial')
+    parser.add_argument('--is_PILF', action="store_true", help='whether use the loss_smth')
+    parser.add_argument('--scan', action="store_true", help='parallel or serial')
     args = parser.parse_args()
     return args
 
