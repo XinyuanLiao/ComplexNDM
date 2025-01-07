@@ -59,6 +59,8 @@ def trainer(arguments):
     model = complexNDM(hidden_size=arguments.hidden_size,
                        output_size=arguments.output_size,
                        layer_num=arguments.layer_num,
+                       sigma_min=arguments.r_min,
+                       sigma_max=arguments.r_max,
                        scan=arguments.scan,
                        phase=arguments.phase)
 
