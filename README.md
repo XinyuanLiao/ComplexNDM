@@ -10,7 +10,7 @@
 
 This repository includes the code for the paper _Parallelizable Complex Neural Dynamics Models for Temperature Estimation with Hardware Acceleration_.
 
-Since _**PyTorch**_ does not support parallel scanning and _**JAX**_ does not support Windows x64_86, this repo is built by _**JAX**_, and the parallel prefix sum scanning algorithm is implemented by the [```jax.lax.associative_scan```](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.associative_scan.html). The parallel algorithm reduces the time complexity from _**O(N)**_ to _**O(logN)**_ for serial calculations. 
+Since _**PyTorch**_ does not support parallel scanning, this repo is built by _**JAX**_ in the Linux system. The parallel prefix sum scan algorithm is implemented by the [```jax.lax.associative_scan```](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.associative_scan.html). The parallel algorithm reduces the time complexity from _**O(N)**_ to _**O(logN)**_ for serial calculations. 
 <p align="center">
   <img src="https://github.com/XinyuanLiao/complexNDM/blob/main/Figs/frame.jpg" width="1000px"/>
 </p>
@@ -23,12 +23,11 @@ pip install -r requirements.txt
 ```
 details:
 ```
-tensorflow-gpu==2.10.0
-tensorflow-probability==0.16.0
-pandas==1.4.2
-numpy==1.21.0
-h5py==3.6.0
-kagglehub==0.3.6
+JAX
+Flax
+torch
+numpy
+kagglehub
 ```
 ## Run
 Run the training program from the command line.
