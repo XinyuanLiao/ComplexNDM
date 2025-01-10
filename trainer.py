@@ -1,8 +1,6 @@
 import argparse
 import time
-
 import flax
-import jax
 from torch.utils.data import DataLoader, TensorDataset
 from flax.training import train_state
 import optax
@@ -15,7 +13,7 @@ from data import *
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--seed', type=int, default=2024, help='random seed')
+    parser.add_argument('--seed', type=int, default=1111, help='random seed')
     parser.add_argument('--prediction_length', type=int, default=8)
     parser.add_argument('--estimation_length', type=int, default=128)
     parser.add_argument('--num_samples', type=int, default=200000)
@@ -24,10 +22,9 @@ def parse_arguments():
     parser.add_argument('--output_size', type=int, default=4)
     parser.add_argument('--num_epochs', type=int, default=300)
     parser.add_argument('--layer_num', type=int, default=2, help='number of hidden layers of f_0 and f_u')
-    parser.add_argument('--phase', type=float, default=jnp.pi / 10, help='phase range of eigenvalues')
+    parser.add_argument('--phase', type=float, default=0.314, help='phase range of eigenvalues')
     parser.add_argument('--r_max', type=float, default=1.0)
     parser.add_argument('--r_min', type=float, default=0.9)
-    parser.add_argument('--is_PILF', action="store_true", help='whether use the loss_smth')
     parser.add_argument('--scan', action="store_true", help='parallel or serial')
     args = parser.parse_args()
     return args
@@ -92,14 +89,13 @@ def trainer(arguments):
         loss_total = smoothl1loss(y, y_pred)
         loss_total = jnp.mean(loss_total)
 
-        if arguments.is_PILF:
-            diff = jnp.abs(hidden_states[0:-1] - hidden_states[1:])
-            loss_smth = smoothl1loss(diff, jnp.zeros_like(diff))
-            loss_smth = jnp.mean(loss_smth)
+        diff = jnp.abs(hidden_states[0:-1] - hidden_states[1:])
+        loss_smth = smoothl1loss(diff, jnp.zeros_like(diff))
+        loss_smth = jnp.mean(loss_smth)
 
-            ratio = jnp.divide(loss_smth, loss_total)
-            ratio = jax.lax.stop_gradient(ratio)
-            loss_total = loss_total + loss_smth / (10 * ratio)
+        ratio = jnp.divide(loss_smth, loss_total)
+        ratio = jax.lax.stop_gradient(ratio)
+        loss_total = loss_total + loss_smth / (10 * ratio)
 
         return loss_total
 
@@ -131,7 +127,7 @@ def trainer(arguments):
             end_time = time.time()
 
         epoch_loss_avg /= (i + 1)
-        batch_avg_time = (end_time-start_time)/(i+1)
+        batch_avg_time = (end_time - start_time) / (i + 1)
         print("Epoch Avg Loss: {:.5f}".format(epoch_loss_avg))
         print("Batch Avg Time: {:.3f} s".format(batch_avg_time))
 
@@ -146,21 +142,15 @@ def trainer(arguments):
     print("Test Loss RMSE: {:.4f}".format(jnp.sqrt(test_loss)))
     print("Test Loss l_max: {:.4f}".format(l_max))
 
-    # bytes_output = flax.serialization.to_bytes(state.params)
-    # with open('/root/autodl-tmp/Jax_ComplexNDM/checkpoints/best_model.flax', 'wb') as f:
-    #     f.write(bytes_output)
-
-    with open("/root/autodl-tmp/Jax_ComplexNDM/exp.txt", "a") as file:
-        content = (f"Seed: {arguments.seed}, r_min: {arguments.r_min}, r_max: {arguments.r_max}, "
-                   f"phase: {arguments.phase:.3f}, MSE: {test_loss:.2f}, RMSE: {jnp.sqrt(test_loss):.2f}, "
-                   f"l_max: {l_max:.2f}")
-        file.write(content + "\n")
+    bytes_output = flax.serialization.to_bytes(state.params)
+    with open('/root/autodl-tmp/Jax_ComplexNDM/checkpoints/best_model.flax', 'wb') as f:
+        f.write(bytes_output)
 
 
 def main():
     args = parse_arguments()
     seed_random(args.seed)
-    print(f'scan: {args.scan}, is_PILF: {args.is_PILF}')
+    print(f'Scan: {args.scan}')
     trainer(args)
 
 

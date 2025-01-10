@@ -51,13 +51,13 @@ class complexMLP(nn.Module):
 
 
 class complexNDM(nn.Module):
-    hidden_size: int = 32
-    output_size: int = 4
-    layer_num: int = 3
-    sigma_min: float = 0.9
-    sigma_max: float = 0.999
-    phase: float = 3.14
-    scan: bool = True
+    hidden_size: int
+    output_size: int
+    layer_num: int
+    sigma_min: float
+    sigma_max: float
+    phase: float
+    scan: bool
 
     def setup(self):
         u1 = jnp.array(np.random.uniform(size=(int(self.hidden_size / 2),)))
