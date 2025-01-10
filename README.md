@@ -21,19 +21,12 @@ Since _**PyTorch**_ does not support parallel scanning, this repo is built by _*
 ```
 pip install -r requirements.txt
 ```
-details:
-```
-JAX
-Flax
-torch
-numpy
-kagglehub
-```
+
 ## Run
 Run the training program from the command line.
 
 ```
-python trainer.py --scan --is_PILF
+python trainer.py --scan
 ```
 
 # Star History
