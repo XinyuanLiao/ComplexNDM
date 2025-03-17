@@ -8,7 +8,7 @@
 ![Static Badge](https://img.shields.io/badge/Test_Platform-Linux-pink)
 </div>
 
-This repository includes the code for the paper _Parallelizable Complex Neural Dynamics Models for Temperature Estimation with Hardware Acceleration_.
+This repository includes the code for the paper _Parallelizable Complex Neural Dynamics Models for PMSM Temperature Estimation with Hardware Acceleration_.
 
 Since _**PyTorch**_ does not support parallel scanning, this repo is built by _**JAX**_ in the Linux system. The parallel prefix sum scan algorithm is implemented by the [```jax.lax.associative_scan```](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.associative_scan.html). The parallel algorithm reduces the time complexity from _**O(N)**_ to _**O(logN)**_ for serial calculations. 
 <p align="center">
